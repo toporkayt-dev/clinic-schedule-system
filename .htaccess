@@ -1,0 +1,70 @@
+# ===== Apache конфиг для Clinic Schedule System =====
+
+# Включение модуля rewrite
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Перенаправление на index.html для SPA
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.html [L]
+end>
+
+# ===== CORS Headers =====
+<IfModule mod_headers.c>
+    # Разрешить CORS запросы
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+    
+    # Обработка preflight запросов
+    <IfModule mod_rewrite.c>
+        RewriteCond %{REQUEST_METHOD} ^OPTIONS$
+        RewriteRule ^(.*)$ $1 [L]
+    </IfModule>
+end>
+
+# ===== Security Headers =====
+<IfModule mod_headers.c>
+    # Предотвращение X-Frame-Options
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Предотвращение XSS
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Предотвращение MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Content Security Policy
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'"
+end>
+
+# ===== Compression =====
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+end>
+
+# ===== Caching =====
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html "access plus 1 hour"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+end>
+
+# ===== Защита чувствительных файлов =====
+<FilesMatch "\.(env|sql|json|log)$">
+    Order Allow,Deny
+    Deny from all
+end>
+
+# Защита от доступа к папкам
+<Directory ~ "^\.">
+    Order Allow,Deny
+    Deny from all
+end>
