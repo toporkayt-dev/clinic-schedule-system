@@ -1,0 +1,12 @@
+# CORS для API
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+# Запретить прямой доступ к файлам
+Options -Indexes
+
+# Prevent directory listing
+<IfModule mod_dir.c>
+    DirectoryIndex index.php
+end>

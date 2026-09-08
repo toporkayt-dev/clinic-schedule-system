@@ -1,0 +1,31 @@
+# PHP
+*.php~
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Config files with credentials
+config.php
+config.local.php
+
+# Logs
+*.log
+logs/
+
+# Backup files
+backups/
+*.sql
+*.gz
+
+# Node modules (если используется)
+node_modules/
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Schedule System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Боковая панель навигации -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>🏥 Clinic</h1>
+                <p id="userDisplay"></p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="schedule">
+                    <span class="icon">📅</span>
+                    <span>Расписание</span>
+                </a>
+                <a href="#" class="nav-item" data-page="notes">
+                    <span class="icon">📝</span>
+                    <span>Заметки</span>
+                </a>
+                <a href="#" class="nav-item" data-page="backup">
+                    <span class="icon">💾</span>
+                    <span>Резервная копия</span>
+                </a>
+                <a href="#" class="nav-item" data-page="admin">
+                    <span class="icon">🔧</span>
+                    <span>Админ-панель</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-secondary btn-block">Выход</button>
+            </div>
+        </aside>
+
+        <!-- Основное содержимое -->
+        <main class="main-content">
+            <!-- Расписание -->
+            <section id="schedule" class="page active">
+                <h2>📅 Расписание</h2>
+                <p>Содержимое расписания будет здесь...</p>
+            </section>
+
+            <!-- Заметки -->
+            <section id="notes" class="page">
+                <h2>📝 Мои заметки</h2>
+                <p>Содержимое заметок будет здесь...</p>
+            </section>
+
+            <!-- Резервная копия -->
+            <section id="backup" class="page">
+                <h2>💾 Резервное копирование</h2>
+                <p>Содержимое резервной копии будет здесь...</p>
+            </section>
+
+            <!-- Админ-панель -->
+            <section id="admin" class="page">
+                <h2>🔧 Администрирование</h2>
+                <p>Содержимое админ-панели будет здесь...</p>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Проверка авторизации
+            try {
+                const response = await fetch('/backend/api/check_token.php', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                
+                if (!response.ok) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                if (!data.is_authenticated) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Отображение имени пользователя
+                const user = data.user;
+                document.getElementById('userDisplay').textContent = user.username + ` (${user.role})`;
+                
+                // Скрытие админ-панели для неадминов
+                const adminNav = document.querySelector('[data-page="admin"]');
+                if (user.role !== 'admin') {
+                    adminNav.style.display = 'none';
+                }
+                
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // Навигация между страницами
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Убрать активный класс со всех элементов
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                
+                // Добавить активный класс текущему элементу
+                item.classList.add('active');
+                const pageName = item.getAttribute('data-page');
+                document.getElementById(pageName).classList.add('active');
+            });
+        });
+        
+        // Выход из системы
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await fetch('/backend/api/logout.php', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
