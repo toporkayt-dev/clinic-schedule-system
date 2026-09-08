@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Schedule System - Вход</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>🏥 Clinic Schedule</h1>
+                <p>Система управления расписанием</p>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Имя пользователя</label>
+                    <input type="text" id="username" name="username" required placeholder="Введите имя">
+                    <span class="error-message" id="usernameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" name="password" required placeholder="Введите пароль">
+                    <span class="error-message" id="passwordError"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Вход</button>
+                <span class="error-message" id="formError"></span>
+            </form>
+
+            <div class="auth-footer">
+                <p>Нет аккаунта? <a href="register.html">Зарегистрируйтесь</a></p>
+            </div>
+        </div>
+
+        <div class="test-credentials">
+            <h3>🧪 Тестовые учетные данные:</h3>
+            <p><strong>Admin:</strong> admin / admin123</p>
+            <p><strong>Doctor:</strong> doctor / doctor123</p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/backend/api/login.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'index.html';
+                } else {
+                    document.getElementById('formError').textContent = data.error || 'Ошибка входа';
+                }
+            } catch (error) {
+                document.getElementById('formError').textContent = 'Ошибка соединения';
+                console.error('Login error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
